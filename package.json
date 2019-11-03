@@ -2,7 +2,7 @@
   "name": "servez-lib",
   "version": "1.0.0",
   "description": "a simple server",
-  "main": "index.js",
+  "main": "lib/servez.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -11,6 +11,23 @@
     "https",
     "server"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/greggman/servez-lib.git"
+  },
   "author": "Gregg Tavares",
-  "license": "MIT"
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/greggman/servez-lib/issues"
+  },
+  "homepage": "https://github.com/greggman/servez-lib#readme",
+  "dependencies": {
+    "basic-auth": "^2.0.1",
+    "cors": "^2.8.5",
+    "debug": "^4.1.1",
+    "express": "^4.17.1",
+    "secure-compare": "^3.0.1",
+    "serve-index": "^1.9.1",
+    "server-destroy": "^1.0.1"
+  }
 }
