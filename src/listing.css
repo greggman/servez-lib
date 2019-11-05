@@ -47,7 +47,7 @@ ul#files li a {
   border: 1px solid transparent;
   border-radius: 5px;
   overflow: hidden;
-  white-space: nowrap;
+  white-space: pre;
 }
 #files>li>a>span {
 }
