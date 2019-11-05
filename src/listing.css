@@ -154,3 +154,40 @@ ul#files.view-details li.header {
   }
 }
 
+@media (prefers-color-scheme: dark) {
+  html {
+    scrollbar-color: hsl(0, 0%, 35%) hsl(0, 0%, 13%);
+  }
+  body {
+    background: #333;
+    color: #CCC;
+  }
+  input {
+    color: #CCC;
+  }
+  ul#files li:nth-child(odd) {
+    background: #444;
+  }
+  ul#files li a {
+    color: #ACF;
+  }
+  a:visited {
+    color: #ACF;
+  }
+  ul#files li a:focus,
+  ul#files li a:hover {
+    background: #556;
+    border: 1px solid #333;
+  }
+  ul#files li a.highlight {
+    background: #466;
+    border-color: #222;
+  }
+  #search {
+    border: 1px solid #ddd;
+  }
+  ul#files.view-details li.header {
+    background: #000;
+    color: #fff;
+  }
+}
