@@ -4,6 +4,7 @@
   "description": "a simple server",
   "main": "lib/servez.js",
   "scripts": {
+    "pre-push": "npm test",
     "test": "mocha test/tests"
   },
   "keywords": [
