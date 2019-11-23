@@ -11,6 +11,4 @@ path_classifiers:
   examples:
     - examples
     - resources
-  code:
-    - lib
 
