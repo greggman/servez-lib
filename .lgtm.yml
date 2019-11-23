@@ -1,0 +1,16 @@
+path_classifiers:
+  docs:
+    - docs
+  build:
+    - build
+  test:
+    - test
+  generated:
+    - dist
+    - npm
+  examples:
+    - examples
+    - resources
+  code:
+	  - lib
+
