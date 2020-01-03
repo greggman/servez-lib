@@ -28,6 +28,7 @@
     "debug": "^4.1.1",
     "express": "^4.17.1",
     "secure-compare": "^3.0.1",
+    "selfsigned": "^1.10.7",
     "serve-index": "^1.9.1",
     "server-destroy": "^1.0.1"
   },
