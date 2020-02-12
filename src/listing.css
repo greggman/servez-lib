@@ -1,5 +1,6 @@
 body {
   font-family: monospace;
+  font-size: large;
 }
 h1 {
     font-size: large;
@@ -58,8 +59,7 @@ ul#files li a:hover {
   border: 1px solid #AAA;
 }
 ul#files li a.highlight {
-  background: #ffff4f;
-  border-color: #E9DC51;
+  display: none;
 }
 #search {
   display: block;
@@ -178,10 +178,6 @@ ul#files.view-details li.header {
   ul#files li a:hover {
     background: #556;
     border: 1px solid #333;
-  }
-  ul#files li a.highlight {
-    background: #466;
-    border-color: #222;
   }
   #search {
     border: 1px solid #ddd;

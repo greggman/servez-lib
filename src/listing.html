@@ -35,7 +35,7 @@
           var text = link.textContent.toLowerCase();
 
           if ('..' == text) return;
-          if (str.length && ~text.indexOf(str)) {
+          if (str.length && !~text.indexOf(str)) {
             link.classList.add('highlight');
           } else {
             link.classList.remove('highlight');
