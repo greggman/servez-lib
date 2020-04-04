@@ -4,8 +4,147 @@
     <meta charset='utf-8'> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="google" content="notranslate">
-    <title>listing directory {directory}</title>
-    <style>{style}</style>
+    <title>folder listing: {directory}</title>
+    <style>
+body {
+  font-family: monospace;
+  font-size: large;
+}
+h1 {
+    font-size: large;
+}
+:hover {
+  cursor: pointer;
+}
+p {
+  line-height: 1.5;
+}
+a {
+  text-decoration: none;
+}
+#stacktrace {
+  margin-top: 15px;
+}
+.directory h1 {
+  margin-bottom: 15px;
+}
+table#files {
+    padding: 0;
+    width: 100%;
+    table-layout: fixed;
+}
+table#files tr {
+  
+}
+table#files tr:nth-child(odd) {
+    background: #EEE;
+}
+table#files tr {
+  border: 1px solid transparent;
+  border-radius: 5px;
+  overflow: hidden;
+}
+/* note: these are n, m, s because Kodi is hardcoded to look for these >:( */
+/* name */
+table#files td.i {
+  font-size: medium;
+  text-align: center;
+  vertical-align: middle;  
+  width: 1em;
+}
+table#files td.n {
+}
+table#files td.n a {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* date (modified) */
+/* the align=right is required by kodi (T_T) */
+table#files td.m,
+table#files td[align=right] {
+  text-align: center !important;
+  white-space: nowrap;
+  width: 11em;
+}
+/* size */
+table#files td.s {
+  text-align: right;
+  width: 4em;
+}
+
+a:hover {
+  background: #DDE;
+}
+table#files tr:focus,
+table#files tr:hover {
+  background: #DDE;
+  border: 1px solid #AAA;
+  cursor: pointer;
+}
+table#files tr.highlight {
+  display: none;
+}
+#search {
+  display: block;
+  position: fixed;
+  top: 1em;
+  right: 1em;
+  width: 15em;
+  text-align: left;
+  padding: .25em .5em;
+  margin-bottom: 0;
+  outline: none;
+  border: 1px solid #ddd;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+@media (max-width: 600px) {
+  #files td.s {
+      display: none;
+  }
+  #files td[align=right] {
+      display: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    scrollbar-color: hsl(0, 0%, 35%) hsl(0, 0%, 13%);
+  }
+  body {
+    background: #333;
+    color: #CCC;
+  }
+  input {
+    color: #CCC;
+  }
+  table#files tr:nth-child(odd) {
+    background: #444;
+  }
+  table#files tr a {
+    color: #ACF;
+  }
+  a {
+    color: #8AC;
+  }
+  a:visited {
+    color: #ACF;
+  }
+  a:hover {
+    background: #556;
+  }
+  table#files tr:focus,
+  table#files tr:hover {
+    background: #556;
+    border: 1px solid #333;
+  }
+  #search {
+    border: 1px solid #ddd;
+    background: rgba(0, 0, 0, 0.9);
+  }
+}
+    </style>
   </head>
   <body class="directory">
     <input id="search" type="text" placeholder="Search" autocomplete="off" />
@@ -15,12 +154,49 @@
     </div>
     <script>
     {
-      // we should really do this in the code that generates the HTML
-      var padding = [10, 8, 2]
-      document.querySelectorAll('.date').forEach(function(elem) {
-        elem.textContent = elem.textContent.split(' ').map((s,i) => s.padStart(padding[i])).join(' ');
+      // this shouldn't happen here but our hand is forced
+      // because we want Kodi to be able to parse the HTML
+       document.querySelector('#files').addEventListener('click', function(e) {
+         var tr = e.target.closest('tr');
+         if (tr) {
+           var a = tr.querySelector('a');
+           if (a) {
+             window.location.href = a.href;
+           }
+         }
+       });
+    }
+
+    {
+      var icons = {
+        jpg: '🏙',
+        jpeg: '🏙',
+        png: '🌄',
+        gif: '🌠',
+        mp4: '🎬',
+        m4v: '🎬',
+        mov: '🎬',
+        avi: '🎬',
+        mkv: '🎬',
+        wmv: '🎬',
+        mp3: '🔈',
+        ogg: '🔈',
+        wav: '🔈',
+        flac: '🔈',
+        acc: '🔈',
+        exe: '☠️',
+      };
+      var extRE = /\.[^/.]*$/;
+      document.querySelector('#files').querySelectorAll('tr').forEach(function(row) {
+        var icon = row.querySelector('.i');
+        var a = row.querySelector('a');
+        var m = extRE.exec(a.href);
+        var ext = m ? m[0].substr(1).toLowerCase() : '';
+        console.log(a.href, a.href.endsWith('/'));
+        icon.textContent = icons[ext] || (a.href.endsWith('/') ? '📁' : '📄');
       });
     }
+
 
     {
       function $(id) {
@@ -29,16 +205,17 @@
 
       function search() {
         var str = $('search').value.toLowerCase();
-        var links = $('files').querySelectorAll('a');
+        var rows = $('files').querySelectorAll('tr');
 
-        links.forEach(function(link){
-          var text = link.textContent.toLowerCase();
+        rows.forEach(function(row){
+          var link = row.querySelector('a');
+          var text = row.textContent.toLowerCase();
 
           if ('..' == text) return;
           if (str.length && !~text.indexOf(str)) {
-            link.classList.add('highlight');
+            row.classList.add('highlight');
           } else {
-            link.classList.remove('highlight');
+            row.classList.remove('highlight');
           }
         });
       }

@@ -142,6 +142,24 @@ describe('servez-lib', () => {
     assert.notStrictEqual(res2Text, res3Text);
   });
 
+  it('listing is kodi compatible', async() => {
+    const {servez, baseUrl} = await makeServer({dirs: true});
+    server = servez;
+    const res = await fetch(`${baseUrl}/folder`);
+    const html = await res.text();
+    const dateRE = /<td align="right">([0-9]{4})-([0-9]{2})-([0-9]{2}) ([0-9]{2}):([0-9]{2}) +<\/td>/;
+    const sizeRE = /> *([0-9.]+)(B|K|M|G| )<\/td>/
+    const itemRE = /<a href=\"(.*)\">(.*)<\/a>/
+    const items = html.split('\n').filter(line => itemRE.test(line));
+    assert.strictEqual(items.length, 4);
+    const files = items.filter(item => item.indexOf('/"') < 0);
+    assert.strictEqual(files.length, 2);
+    for (const item of files) {
+      assert.isTrue(sizeRE.test(item));
+      assert.isTrue(dateRE.test(item));
+    }
+  });
+
   it('fails if bad auth', async() => {
     const username = 'foo';
     const password = 'bar';
