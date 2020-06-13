@@ -28,6 +28,16 @@ a {
 .directory h1 {
   margin-bottom: 15px;
 }
+.sort-up::after {
+  content: "▲";
+}
+.sort-down::after {
+  content: "▼";
+}
+.sort-down,
+.sort-up {
+  color: seagreen;
+}
 table#files {
     padding: 0;
     width: 100%;
@@ -46,7 +56,8 @@ table#files tr {
 }
 /* note: these are n, m, s because Kodi is hardcoded to look for these >:( */
 /* name */
-table#files td.i {
+table#files td.i,
+table#files th.i {
   font-size: medium;
   text-align: center;
   vertical-align: middle;  
@@ -62,13 +73,15 @@ table#files td.n a {
 /* date (modified) */
 /* the align=right is required by kodi (T_T) */
 table#files td.m,
+table#files th.m,
 table#files td[align=right] {
   text-align: center !important;
   white-space: nowrap;
   width: 11em;
 }
 /* size */
-table#files td.s {
+table#files td.s,
+table#files th.s {
   text-align: right;
   width: 4em;
 }
@@ -100,11 +113,11 @@ table#files tr.highlight {
 }
 
 @media (max-width: 600px) {
-  #files td.s {
-      display: none;
-  }
-  #files td[align=right] {
-      display: none;
+  #files td.s,
+  #files th.s,
+  #files th.m,
+  table#files td[align=right] {
+    display: none;
   }
 }
 
@@ -124,6 +137,10 @@ table#files tr.highlight {
   }
   table#files tr a {
     color: #ACF;
+  }
+  .sort-down,
+  .sort-up {
+    color: lightseagreen;
   }
   a {
     color: #8AC;
@@ -168,6 +185,120 @@ table#files tr.highlight {
     }
 
     {
+      function createElem(tag, attrs = {}) {
+        const elem = document.createElement(tag);
+        for (const [key, value] of Object.entries(attrs)) {
+          if (typeof value === 'object') {
+            for (const [k, v] of Object.entries(value)) {
+              try {
+              elem[key][k] = v;
+              } catch (e) {
+                debugger;  // eslint-disable-line no-debugger
+              }
+            }
+          } else if (elem[key] === undefined) {
+            elem.setAttribute(key, value);
+          } else {
+            elem[key] = value;
+          }
+        }
+        return elem;
+      }
+
+      function addElem(tag, parent, attrs = {}) {
+        const elem = createElem(tag, attrs);
+        parent.appendChild(elem);
+        return elem;
+      }
+
+      function byTextContent(columnNdx) {
+        return (a, b) => {
+          const av = a.cells[columnNdx].textContent.toLowerCase();
+          const bv = b.cells[columnNdx].textContent.toLowerCase();
+          return av === bv ? 0 : av < bv ? -1 : 1;
+        };
+      }
+
+      function unFormatBytes(str) {
+        const suffixes = {
+          'b': 0,
+          'k': 2**10,
+          'm': 2**20,
+          'g': 2**30,
+        };
+        const mult = suffixes[str.slice(-1).toLowerCase()];
+        if (mult === undefined) {
+          return -1;
+        }
+        return parseFloat(str) * mult;
+      };
+
+      function bySizeAbbreviation(columnNdx) {
+        return (a, b) => {
+          const av = unFormatBytes(a.cells[columnNdx].textContent);
+          const bv = unFormatBytes(b.cells[columnNdx].textContent);
+          return av === bv ? 0 : av < bv ? -1 : 1;
+        };
+      }
+
+      function reverseSort(sortFn) {
+        return (a, b) => sortFn(b, a);
+      }
+
+      const table = document.querySelector('#files');
+      const thead = addElem('thead', table);
+      const tr = addElem('tr', thead);
+      const headings = [
+        { attribs: {textContent: '',     className: 'i'}, sortFn: byTextContent, },
+        { attribs: {textContent: 'name', className: 'n'}, sortFn: byTextContent, },
+        { attribs: {textContent: 'date', className: 'm'}, sortFn: byTextContent, },
+        { attribs: {textContent: 'size', className: 's'}, sortFn: bySizeAbbreviation, },
+      ];
+      const headingElements = headings.map(heading => {
+        const elem = addElem('th', tr, heading.attribs);
+        elem.addEventListener('click', (e) => {
+          const reverse = elem.classList.contains('sort-down');
+          headingElements.forEach(elem => {
+            elem.classList.remove('sort-up');
+            elem.classList.remove('sort-down');
+          });
+          const sortBy = heading.attribs.className;
+          sort(sortBy, reverse);
+        });
+        return elem;
+      });
+
+      function sort(sortBy, reverse) {
+        const thead = document.querySelector('#files thead>tr');
+        const th = thead.querySelector(`th.${sortBy}`);
+        th.classList.add(reverse ? 'sort-up' : 'sort-down');
+        const url = new URL(window.location.href);
+        url.hash = `sortBy=${sortBy}${reverse ? '&reverse=true' : ''}`
+        history.replaceState(null, '', url.href);
+
+        const columnNdx = [...thead.cells].indexOf(th);
+        const tbody = document.querySelector('#files tbody');
+        const rows = [...tbody.rows];
+        rows.forEach(row => row.remove());
+        const sortFn = headings[columnNdx].sortFn(columnNdx);
+        rows.sort(reverse ? reverseSort(sortFn) : sortFn);
+        rows.forEach(row => tbody.appendChild(row));
+      }
+
+      {
+        const params = {};
+        window.location.hash.substr(1).split('&').forEach(pair => {
+          const kv = pair.split('=');
+          params[kv[0]] = kv[1];
+        });
+        const sortBy = params.sortBy;
+        if (sortBy) {
+          sort(sortBy, !!params.reverse);
+        }
+      }
+    }
+
+    {
       var icons = {
         jpg: '🏙',
         jpeg: '🏙',
@@ -187,12 +318,11 @@ table#files tr.highlight {
         exe: '☠️',
       };
       var extRE = /\.[^/.]*$/;
-      document.querySelector('#files').querySelectorAll('tr').forEach(function(row) {
+      document.querySelector('#files').querySelectorAll('tbody>tr').forEach(function(row) {
         var icon = row.querySelector('.i');
         var a = row.querySelector('a');
         var m = extRE.exec(a.href);
         var ext = m ? m[0].substr(1).toLowerCase() : '';
-        console.log(a.href, a.href.endsWith('/'));
         icon.textContent = icons[ext] || (a.href.endsWith('/') ? '📁' : '📄');
       });
     }
@@ -205,7 +335,7 @@ table#files tr.highlight {
 
       function search() {
         var str = $('search').value.toLowerCase();
-        var rows = $('files').querySelectorAll('tr');
+        var rows = document.querySelector('#files tbody').querySelectorAll('tr');
 
         rows.forEach(function(row){
           var link = row.querySelector('a');
