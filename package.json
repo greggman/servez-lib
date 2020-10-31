@@ -28,13 +28,13 @@
     "debug": "^4.1.1",
     "express": "^4.17.1",
     "secure-compare": "^3.0.1",
-    "selfsigned": "^1.10.7",
+    "selfsigned": "^1.10.8",
     "serve-index": "^1.9.1",
     "server-destroy": "^1.0.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
-    "mocha": "^7.1.1",
-    "node-fetch": "^2.6.0"
+    "mocha": "^8.2.0",
+    "node-fetch": "^2.6.1"
   }
 }
