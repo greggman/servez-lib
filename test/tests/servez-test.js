@@ -6,6 +6,7 @@ const fetch = require('node-fetch');
 
 const root = path.join(__dirname, '..', 'data');
 const fileTxtContents = fs.readFileSync(path.join(root, 'file.txt'), 'utf8');
+const fooHtmlContents = fs.readFileSync(path.join(root, 'foo.html'), 'utf8');
 const fileTxtGzContents = fs.readFileSync(path.join(root, 'file.txt.gz'));
 
 function makeServer(options = {}) {
@@ -14,6 +15,7 @@ function makeServer(options = {}) {
       root,
       port: 8080,
       scan: options.scan === undefined ? true : options.scan,
+      extensions: ['html'],
     }));
     servez.on('start', (startInfo) => {
       resolve({servez, startInfo, baseUrl: startInfo.baseUrl});
@@ -183,4 +185,13 @@ describe('servez-lib', () => {
     const text = await res.text();
     assert.strictEqual(text, fileTxtContents);
   });
+
+  it('gets html when non-html', async() => {
+    const {servez, baseUrl} = await makeServer();
+    server = servez;
+    const res = await fetch(`${baseUrl}/foo`);
+    const text = await res.text();
+    assert.strictEqual(text, fooHtmlContents);
+  });
+
 });
