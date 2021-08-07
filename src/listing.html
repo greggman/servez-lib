@@ -268,7 +268,7 @@ table#files tr.highlight {
         return elem;
       });
 
-      function sort(sortBy, reverse) {
+      const sort = (sortBy, reverse) => {
         const thead = document.querySelector('#files thead>tr');
         const th = thead.querySelector(`th.${sortBy}`);
         th.classList.add(reverse ? 'sort-up' : 'sort-down');
@@ -283,7 +283,7 @@ table#files tr.highlight {
         const sortFn = headings[columnNdx].sortFn(columnNdx);
         rows.sort(reverse ? reverseSort(sortFn) : sortFn);
         rows.forEach(row => tbody.appendChild(row));
-      }
+      };
 
       {
         const params = {};
