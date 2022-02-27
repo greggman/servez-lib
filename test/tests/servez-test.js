@@ -194,4 +194,23 @@ describe('servez-lib', () => {
     assert.strictEqual(text, fooHtmlContents);
   });
 
+  it('emits host before start', async() => {
+    // 'server' is shared above to cleanup.
+    server = new Servez({
+      root,
+      port: 8080,
+      scan: true,
+    });
+
+    let host;
+    server.on('host', (info) => {
+      host = info.root;
+    });
+    await new Promise((resolve, reject) => {
+      server.on('start', resolve);
+      server.on('error', reject);
+    });
+
+    assert(/^http(s*):\/\/.*?\/$/.test(host));
+  });
 });
