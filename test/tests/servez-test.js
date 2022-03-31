@@ -213,4 +213,34 @@ describe('servez-lib', () => {
 
     assert(/^http(s*):\/\/.*?\/$/.test(host));
   });
+
+  it('does not sends headers for sharedArrayBuffers by default', async() => {
+    const {servez, baseUrl} = await makeServer({sharedArrayBuffers: true});
+    server = servez;
+    const res = await fetch(`${baseUrl}/file.txt`);
+    assert(res.headers.has('cross-origin-embedder-policy'));
+    assert(res.headers.has('cross-origin-opener-policy'));
+  });
+
+  it('sends correct headers for sharedArrayBuffers', async() => {
+    const {servez, baseUrl} = await makeServer({sharedArrayBuffers: true});
+    server = servez;
+    const res = await fetch(`${baseUrl}/file.txt`);
+    assert.strictEqual(res.headers.get('cross-origin-embedder-policy'), 'require-corp');
+    assert.strictEqual(res.headers.get('cross-origin-opener-policy'), 'same-origin');
+  });
+
+  it('sends added headers', async() => {
+    const {servez, baseUrl} = await makeServer({
+      headers: {
+        'animal': 'dog',
+        'fruit': 'banana',
+      }
+    });
+    server = servez;
+    const res = await fetch(`${baseUrl}/file.txt`);
+    assert.strictEqual(res.headers.get('animal'), 'dog');
+    assert.strictEqual(res.headers.get('fruit'), 'banana');
+  });
+
 });
