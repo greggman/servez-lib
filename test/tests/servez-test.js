@@ -75,6 +75,14 @@ describe('servez-lib', () => {
     server2.servez.close();
   });
 
+  it('scans for port if only 127.0.0.1 is in use', async() => {
+    const server1 = await makeServer({local: true});
+    const server2 = await makeServer();
+    assert.notStrictEqual(server1.baseUrl, server2.baseUrl);
+    server1.servez.close();
+    server2.servez.close();
+  });
+
   it('does not scan for port when scan false', async() => {
     const server1 = await makeServer();
     let threw = false;
