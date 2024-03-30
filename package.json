@@ -3,6 +3,7 @@
   "version": "2.8.2",
   "description": "a simple server",
   "main": "lib/servez.js",
+  "type": "commonjs",
   "scripts": {
     "pre-push": "npm test",
     "test": "mocha test/tests"
@@ -26,15 +27,15 @@
     "basic-auth": "^2.0.1",
     "cors": "^2.8.5",
     "debug": "^4.3.4",
-    "express": "^4.18.2",
+    "express": "^4.19.2",
     "secure-compare": "^3.0.1",
-    "selfsigned": "^2.1.1",
+    "selfsigned": "^2.4.1",
     "serve-index": "^1.9.1",
     "server-destroy": "^1.0.1"
   },
   "devDependencies": {
-    "chai": "^4.3.7",
-    "mocha": "^10.2.0",
+    "chai": "^4.2.0",
+    "mocha": "^10.4.0",
     "node-fetch": "^2.6.9"
   }
 }
