@@ -178,7 +178,12 @@ table#files tr.highlight {
          if (tr) {
            var a = tr.querySelector('a');
            if (a) {
-             window.location.href = a.href;
+            if (e.metaKey || e.ctrlKey) {
+              e.preventDefault();
+              window.open(a.href, '_blank');
+            } else {
+              a.click();
+            }
            }
          }
        });
