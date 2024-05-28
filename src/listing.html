@@ -135,8 +135,18 @@ table#files tr.highlight {
   table#files tr:nth-child(odd) {
     background: #444;
   }
+  table#files tr {
+    position: relative;
+  }
   table#files tr a {
     color: #ACF;
+  }
+  table#files a::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
   }
   .sort-down,
   .sort-up {
@@ -170,25 +180,6 @@ table#files tr.highlight {
       {files}
     </div>
     <script>
-    {
-      // this shouldn't happen here but our hand is forced
-      // because we want Kodi to be able to parse the HTML
-       document.querySelector('#files').addEventListener('click', function(e) {
-         var tr = e.target.closest('tr');
-         if (tr) {
-           var a = tr.querySelector('a');
-           if (a) {
-            if (e.metaKey || e.ctrlKey) {
-              e.preventDefault();
-              window.open(a.href, '_blank');
-            } else {
-              a.click();
-            }
-           }
-         }
-       });
-    }
-
     {
       function createElem(tag, attrs = {}) {
         const elem = document.createElement(tag);
