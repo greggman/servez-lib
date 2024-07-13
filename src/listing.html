@@ -6,9 +6,30 @@
     <meta name="google" content="notranslate">
     <title>folder listing: {directory}</title>
     <style>
-body {
+:root {
+  color-scheme: dark light;
+}
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+.icon-folder {
+  background-image: url('data:image/svg+xml,<svg width="100%" height="100%" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><path d="M64,112L64,407.218C64,424.545 78.067,438.611 95.393,438.611L416.607,438.611C433.933,438.611 448,424.545 448,407.218L448,150.005C448,132.678 433.933,118.611 416.607,118.611L192,118.611L192,112C192,94.339 177.661,80 160,80L96,80C78.339,80 64,94.339 64,112Z" style="fill:rgb(127,127,127);fill-opacity:0.25;"/></svg>');
+}
+.icon-video {
+  background-image: url('data:image/svg+xml,<svg width="100%" height="100%" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">    <g transform="matrix(7.34788e-17,1.2,-1.7103,1.04726e-16,765.778,-56.0063)">        <path d="M249.353,190.419C251.369,187.589 255.491,185.802 260,185.802C264.509,185.802 268.631,187.589 270.647,190.419C300.371,232.129 383.852,349.275 411.202,387.654C413.087,390.299 412.885,393.439 410.67,395.954C408.455,398.469 404.541,400 400.327,400L119.7,400C115.481,400 111.562,398.467 109.343,395.948C107.125,393.43 106.923,390.285 108.81,387.637C136.173,349.239 219.634,232.123 249.353,190.419Z" style="fill:rgb(128,128,128);fill-opacity:0.25;"/>    </g></svg>');
+}
+.icon-audio {
+  background-image: url('data:image/svg+xml,<svg width="100%" height="100%" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;">    <path d="M177.369,192.601L256,136.922L256,375.078L177.369,319.399C175.831,319.791 174.219,320 172.557,320L83.443,320C72.712,320 64,311.288 64,300.557L64,211.443C64,200.712 72.712,192 83.443,192L172.557,192C174.219,192 175.831,192.209 177.369,192.601Z" style="fill:rgb(128,128,128);fill-opacity:0.25;stroke:rgb(128,128,128);stroke-opacity:0.25;stroke-width:33px;"/>    <g transform="matrix(1,0,0,0.875,26.4991,32)">        <path d="M282.253,192C311.244,234.667 311.787,277.333 282.253,320" style="fill:rgb(128,128,128);fill-opacity:0.25;stroke:rgb(128,128,128);stroke-opacity:0.25;stroke-width:30.86px;"/>    </g>    <g transform="matrix(1,0,0,0.875,38.0032,32)">        <path d="M320,160C360.808,222.975 362.32,286.937 320,352" style="fill:rgb(128,128,128);fill-opacity:0.25;stroke:rgb(128,128,128);stroke-opacity:0.25;stroke-width:30.86px;"/>    </g>    <g transform="matrix(1,0,0,0.875,47.2508,32)">        <path d="M357.727,128C414.666,210.167 415.513,295.453 357.727,384" style="fill:rgb(128,128,128);fill-opacity:0.25;stroke:rgb(128,128,128);stroke-opacity:0.25;stroke-width:30.86px;"/>    </g></svg>');
+}
+
+html, body {
   font-family: monospace;
   font-size: large;
+  height: 100%;
+  overflow: none;
 }
 h1 {
     font-size: large;
@@ -47,7 +68,7 @@ table#files tr {
   
 }
 table#files tr:nth-child(odd) {
-    background: #EEE;
+    background-color: #EEE;
 }
 table#files tr {
   border: 1px solid transparent;
@@ -87,29 +108,78 @@ table#files th.s {
 }
 
 a:hover {
-  background: #DDE;
+  background-color: #DDE;
 }
 table#files tr:focus,
 table#files tr:hover {
-  background: #DDE;
+  background-color: #DDE;
   border: 1px solid #AAA;
   cursor: pointer;
 }
-table#files tr.highlight {
+.hide,
+.thumbnail.hide {
   display: none;
 }
-#search {
-  display: block;
+#header {
+  display: flex;
+  flex-direction: row-reverse;
   position: fixed;
   top: 1em;
   right: 1em;
+  z-index: 1000;
+}
+#search {
   width: 15em;
   text-align: left;
   padding: .25em .5em;
   margin-bottom: 0;
   outline: none;
   border: 1px solid #ddd;
-  background: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(256px, 1fr));
+}
+.image-grid>* {
+  overflow: hidden;
+  word-break: break-all;
+  word-wrap: break-word;
+}
+.image-grid video {
+  object-fit: cover;
+}
+.thumbnail {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-size: cover;
+  background-position: center center;
+  border: 1px solid black;
+}
+video {
+  pointer-events: none;
+}
+.behind {
+  z-index: -1;
+  position: absolute;
+}
+.thumbnail .front {
+  z-index: 1;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: none;
+}
+
+@media (max-width: 768px) {
+  .image-grid {
+    grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  }
 }
 
 @media (max-width: 600px) {
@@ -126,14 +196,14 @@ table#files tr.highlight {
     scrollbar-color: hsl(0, 0%, 35%) hsl(0, 0%, 13%);
   }
   body {
-    background: #333;
+    background-color: #333;
     color: #CCC;
   }
   input {
     color: #CCC;
   }
   table#files tr:nth-child(odd) {
-    background: #444;
+    background-color: #444;
   }
   table#files tr {
     position: relative;
@@ -159,38 +229,42 @@ table#files tr.highlight {
     color: #ACF;
   }
   a:hover {
-    background: #556;
+    background-color: #556;
   }
   table#files tr:focus,
   table#files tr:hover {
-    background: #556;
+    background-color: #556;
     border: 1px solid #333;
   }
   #search {
     border: 1px solid #ddd;
-    background: rgba(0, 0, 0, 0.9);
+    background-color: rgba(0, 0, 0, 0.9);
   }
 }
     </style>
   </head>
   <body class="directory">
-    <input id="search" type="text" placeholder="Search" autocomplete="off" />
+    <div id="header"><input id="search" type="text" placeholder="Search" autocomplete="off" /></div>
     <div id="wrapper">
       <h1><a href="/">~</a>{linked-path}</h1>
       {files}
     </div>
     <script>
+    "use strict";
     {
-      function createElem(tag, attrs = {}) {
+      function createElem(tag, attrs = {}, children = []) {
+        if (Array.isArray(attrs)) {
+          children = attrs;
+          attrs = {};
+        }
         const elem = document.createElement(tag);
         for (const [key, value] of Object.entries(attrs)) {
-          if (typeof value === 'object') {
+          if (typeof value === 'function' && key.startsWith('on')) {
+            const eventName = key.substring(2).toLowerCase();
+            elem.addEventListener(eventName, value, {passive: false});
+          } else if (typeof value === 'object') {
             for (const [k, v] of Object.entries(value)) {
-              try {
               elem[key][k] = v;
-              } catch (e) {
-                debugger;  // eslint-disable-line no-debugger
-              }
             }
           } else if (elem[key] === undefined) {
             elem.setAttribute(key, value);
@@ -198,11 +272,14 @@ table#files tr.highlight {
             elem[key] = value;
           }
         }
+        for (const child of children) {
+          elem.appendChild(child);
+        }
         return elem;
       }
 
-      function addElem(tag, parent, attrs = {}) {
-        const elem = createElem(tag, attrs);
+      function addElem(parent, tag, attrs = {}, children = []) {
+        const elem = createElem(tag, attrs, children);
         parent.appendChild(elem);
         return elem;
       }
@@ -241,9 +318,52 @@ table#files tr.highlight {
         return (a, b) => sortFn(b, a);
       }
 
+      const searchElem = document.querySelector('#search');
+
+      function search() {
+        const str = searchElem.value.toLowerCase();
+        const rows = document.querySelector('#files tbody').querySelectorAll('tr');
+
+        const showHide = (text, elem) => {
+          if ('..' == text) return;
+          if (str.length && !~text.indexOf(str)) {
+            elem.classList.add('hide');
+          } else {
+            elem.classList.remove('hide');
+          }
+        };
+
+        rows.forEach(function(row){
+          const link = row.querySelector('a');
+          const text = row.textContent.toLowerCase();
+          showHide(text, row);
+        });
+
+        [...imageGrid.children].forEach(elem => {
+          const text = elem.textContent.toLowerCase();
+          showHide(text, elem);
+        });
+      }
+
+      searchElem.addEventListener('input', search);
+
       const table = document.querySelector('#files');
-      const thead = addElem('thead', table);
-      const tr = addElem('tr', thead);
+
+      const entries = [...table.rows].map(row => {
+        const a = row.cells[1].querySelector('a');
+        if (!a) {
+          console.log(row);
+        }
+        return {
+          name: a?.textContent,
+          href: a?.href,
+          date: row.cells[2].textContent,
+          size: row.cells[3].textContent,
+        };
+      });
+
+      const thead = addElem(table, 'thead');
+      const tr = addElem(thead, 'tr');
       const headings = [
         { attribs: {textContent: '',     className: 'i'}, sortFn: byTextContent, },
         { attribs: {textContent: 'name', className: 'n'}, sortFn: byTextContent, },
@@ -251,26 +371,43 @@ table#files tr.highlight {
         { attribs: {textContent: 'size', className: 's'}, sortFn: bySizeAbbreviation, },
       ];
       const headingElements = headings.map(heading => {
-        const elem = addElem('th', tr, heading.attribs);
-        elem.addEventListener('click', (e) => {
-          const reverse = elem.classList.contains('sort-down');
-          headingElements.forEach(elem => {
-            elem.classList.remove('sort-up');
-            elem.classList.remove('sort-down');
-          });
-          const sortBy = heading.attribs.className;
-          sort(sortBy, reverse);
+        const elem = addElem(tr, 'th', {
+          ...heading.attribs,
+          onClick: (e) => {
+            const reverse = elem.classList.contains('sort-down');
+            headingElements.forEach(elem => {
+              elem.classList.remove('sort-up');
+              elem.classList.remove('sort-down');
+            });
+            const sortBy = heading.attribs.className;
+            sort(sortBy, reverse);
+          },
         });
         return elem;
       });
 
+      const kModeInfo = {
+        listing: { text: '☰' },
+        gallery: { text: '𝍖' },
+      }
+      const kModes = Object.keys(kModeInfo);
+      const settings = {
+        mode: kModes[0],
+      };
+
+      const updateHash = () => {
+        const url = new URL(window.location.href);
+        const params = new URLSearchParams(Object.entries(settings));
+        url.hash = params.toString();
+        history.replaceState(null, '', url.href);
+      };
+
       const sort = (sortBy, reverse) => {
+        settings.sortBy = sortBy;
+        settings.reverse = reverse;
         const thead = document.querySelector('#files thead>tr');
         const th = thead.querySelector(`th.${sortBy}`);
         th.classList.add(reverse ? 'sort-up' : 'sort-down');
-        const url = new URL(window.location.href);
-        url.hash = `sortBy=${sortBy}${reverse ? '&reverse=true' : ''}`
-        history.replaceState(null, '', url.href);
 
         const columnNdx = [...thead.cells].indexOf(th);
         const tbody = document.querySelector('#files tbody');
@@ -279,23 +416,153 @@ table#files tr.highlight {
         const sortFn = headings[columnNdx].sortFn(columnNdx);
         rows.sort(reverse ? reverseSort(sortFn) : sortFn);
         rows.forEach(row => tbody.appendChild(row));
+
+        updateHash();
       };
 
-      {
-        const params = {};
-        window.location.hash.substr(1).split('&').forEach(pair => {
-          const kv = pair.split('=');
-          params[kv[0]] = kv[1];
+      function makeClassName(...args) {
+        return args.join(' ');
+      }
+
+      const imageGrid = addElem(document.querySelector('#wrapper'), 'div', {className: 'image-grid'});
+      function createImageGrid() {
+        if (imageGrid.children.length > 0) {
+          return;
+        }
+
+        function makeLink({name, href, date, size}, {className} = {}) {
+          return createElem('div', {
+            className: makeClassName('thumbnail', className),
+          }, [
+            createElem('a', { href, textContent: name })
+          ]);
+        }
+
+        function makeIcon(className) {
+          return function(e) {
+            return makeLink(e, {className});
+          };
+        }
+
+        function makeImage({name, href, date, size}) {
+          return createElem('a', {
+            className: 'thumbnail',
+            href,
+            title: name,
+            style: {
+              backgroundImage: `url(${href})`,
+            },
+          }, [
+            createElem('span', { style: { display: 'none', textContent: name }}),
+          ]);
+        }
+
+        function makeVideo({name, href, date, size}) {
+          return createElem('div', {
+            className: 'thumbnail'
+          }, [
+            createElem('video', {
+              className: 'thumbnail',
+              src: href,
+              title: name,
+              loop: true,
+              currentTime: 5,
+            }),
+            createElem('a', {
+              className: 'behind',
+              textContent: name,
+              href,
+            }),
+            createElem('a', {
+              className: 'front',
+              href,
+            }),
+          ]);
+        }
+
+        const makeAudio = makeImage;
+        const makeVideoLink = makeIcon('icon-video');
+        const makeAudioLink = makeIcon('icon-audio');
+        const makeFolderLink = makeIcon('icon-folder');
+        const makeExeLink = makeImage;
+
+        const extFNs = {
+          jpg: makeImage,
+          jpeg: makeImage,
+          png: makeImage,
+          svg: makeImage,
+          gif: makeImage,
+          mp4: makeVideo,
+          m4v: makeVideo,
+          mov: makeVideoLink,
+          avi: makeVideoLink,
+          mkv: makeVideo,
+          wmv: makeVideoLink,
+          mp3: makeAudio,
+          ogg: makeAudioLink,
+          wav: makeAudioLink,
+          flac: makeAudioLink,
+          acc: makeAudioLink,
+          exe: makeExeLink,
+        };
+
+        entries.forEach(e => {
+          if (e.name.endsWith('/')) {
+            return makeFolderLink(e);
+          }
+          const ext = e.name.substring(e.name.lastIndexOf('.') + 1);
+          const fn = extFNs[ext.toLowerCase()] || makeLink;
+          imageGrid.appendChild(fn(e));
         });
-        const sortBy = params.sortBy;
+
+        search();
+      }
+
+      function getNextMode() {
+        return kModes[(kModes.indexOf(settings.mode) + 1) % kModes.length];
+      }
+
+      function updateMode(mode) {
+        settings.mode = mode;
+        const nextMode = getNextMode();
+        modeButton.textContent = kModeInfo[nextMode].text;
+        table.style.display = 'none';
+        imageGrid.style.display = 'none';
+        switch (mode) {
+          case 'listing':
+            table.style.display = '';
+            break;
+          case 'gallery':
+            imageGrid.style.display = '';
+            createImageGrid();
+            break;
+        }
+        updateHash();
+      }
+
+      function cycleMode() {
+        updateMode(getNextMode());
+      }
+
+      const heading = document.querySelector('#header');
+      const modeButton = addElem(heading, 'button', {
+        textContent: '𝍖',
+        onClick: cycleMode,
+      });
+
+      {
+        const {mode, sortBy, reverse} = Object.fromEntries(new URLSearchParams(window.location.hash.substring(1)).entries());
+        if (mode) {
+          updateMode(mode);
+        }
         if (sortBy) {
-          sort(sortBy, !!params.reverse);
+          sort(sortBy, !!reverse);
         }
       }
     }
 
     {
-      var icons = {
+      const icons = {
         jpg: '🏙',
         jpeg: '🏙',
         png: '🌄',
@@ -313,40 +580,14 @@ table#files tr.highlight {
         acc: '🔈',
         exe: '☠️',
       };
-      var extRE = /\.[^/.]*$/;
+      const extRE = /\.[^/.]*$/;
       document.querySelector('#files').querySelectorAll('tbody>tr').forEach(function(row) {
-        var icon = row.querySelector('.i');
-        var a = row.querySelector('a');
-        var m = extRE.exec(a.href);
-        var ext = m ? m[0].substr(1).toLowerCase() : '';
+        const icon = row.querySelector('.i');
+        const a = row.querySelector('a');
+        const m = extRE.exec(a.href);
+        const ext = m ? m[0].substr(1).toLowerCase() : '';
         icon.textContent = icons[ext] || (a.href.endsWith('/') ? '📁' : '📄');
       });
-    }
-
-
-    {
-      function $(id) {
-        return document.getElementById(id);
-      }
-
-      function search() {
-        var str = $('search').value.toLowerCase();
-        var rows = document.querySelector('#files tbody').querySelectorAll('tr');
-
-        rows.forEach(function(row){
-          var link = row.querySelector('a');
-          var text = row.textContent.toLowerCase();
-
-          if ('..' == text) return;
-          if (str.length && !~text.indexOf(str)) {
-            row.classList.add('highlight');
-          } else {
-            row.classList.remove('highlight');
-          }
-        });
-      }
-
-      $('search').addEventListener('keyup', search);
     }
     </script>
   </body>
