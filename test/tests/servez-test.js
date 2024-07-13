@@ -2,7 +2,6 @@ const assert = require('chai').assert;
 const Servez = require('../../lib/servez');
 const fs = require('fs');
 const path = require('path');
-const fetch = require('node-fetch');
 
 const root = path.join(__dirname, '..', 'data');
 const fileTxtContents = fs.readFileSync(path.join(root, 'file.txt'), 'utf8');
