@@ -8,6 +8,28 @@
     <style>
 :root {
   color-scheme: dark light;
+  --main-color: #000;
+  --main-bg-color: #FFF;
+  --odd-child: #EEE;
+  --item-hover: #DDE;
+  --item-hover-border: #AAA;
+  --item-link: initial;
+  --link-hover-bg: #DDE;
+  --sort: seagreen;
+  --search-bg: background-color: rgba(255, 255, 255, 0.9);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --main-color: #ccc;
+    --main-bg-color: #333;
+    --odd-child: #444;
+    --item-hover: #556;
+    --item-hover-border: #333;
+    --item-link: #ACF;
+    --link-hover-bg: #556;
+    --sort: lightseagreen;
+    --search-bg: background-color: rgba(0, 0, 0, 0.9);
+  }
 }
 html {
   box-sizing: border-box;
@@ -16,7 +38,7 @@ html {
   box-sizing: inherit;
 }
 .icon-folder {
-  background-image: url('data:image/svg+xml,<svg width="100%" height="100%" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><path d="M64,112L64,407.218C64,424.545 78.067,438.611 95.393,438.611L416.607,438.611C433.933,438.611 448,424.545 448,407.218L448,150.005C448,132.678 433.933,118.611 416.607,118.611L192,118.611L192,112C192,94.339 177.661,80 160,80L96,80C78.339,80 64,94.339 64,112Z" style="fill:rgb(127,127,127);fill-opacity:0.25;"/></svg>');
+  background-image: url('data:image/svg+xml,<svg width="100%" height="100%"   ewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><path d="M64,112L64,407.218C64,424.545 78.067,438.611 95.393,438.611L416.607,438.611C433.933,438.611 448,424.545 448,407.218L448,150.005C448,132.678 433.933,118.611 416.607,118.611L192,118.611L192,112C192,94.339 177.661,80 160,80L96,80C78.339,80 64,94.339 64,112Z" style="fill:rgb(127,127,127);fill-opacity:0.25;"/></svg>');
 }
 .icon-video {
   background-image: url('data:image/svg+xml,<svg width="100%" height="100%" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">    <g transform="matrix(7.34788e-17,1.2,-1.7103,1.04726e-16,765.778,-56.0063)">        <path d="M249.353,190.419C251.369,187.589 255.491,185.802 260,185.802C264.509,185.802 268.631,187.589 270.647,190.419C300.371,232.129 383.852,349.275 411.202,387.654C413.087,390.299 412.885,393.439 410.67,395.954C408.455,398.469 404.541,400 400.327,400L119.7,400C115.481,400 111.562,398.467 109.343,395.948C107.125,393.43 106.923,390.285 108.81,387.637C136.173,349.239 219.634,232.123 249.353,190.419Z" style="fill:rgb(128,128,128);fill-opacity:0.25;"/>    </g></svg>');
@@ -26,6 +48,8 @@ html {
 }
 
 html, body {
+  background-color: var(--main-bg-color);
+  color: var(--main-color);
   font-family: monospace;
   font-size: large;
   height: 100%;
@@ -57,7 +81,7 @@ a {
 }
 .sort-down,
 .sort-up {
-  color: seagreen;
+  color: var(--sort);
 }
 table#files {
     padding: 0;
@@ -68,12 +92,15 @@ table#files tr {
   
 }
 table#files tr:nth-child(odd) {
-    background-color: #EEE;
+    background-color: var(--odd-child);
 }
 table#files tr {
   border: 1px solid transparent;
   border-radius: 5px;
   overflow: hidden;
+}
+table#files tr a {
+  color: var(--item-link);
 }
 /* note: these are n, m, s because Kodi is hardcoded to look for these >:( */
 /* name */
@@ -108,12 +135,12 @@ table#files th.s {
 }
 
 a:hover {
-  background-color: #DDE;
+  background-color: var(--link-hover-bg);
 }
 table#files tr:focus,
 table#files tr:hover {
-  background-color: #DDE;
-  border: 1px solid #AAA;
+  background-color: var(--item-hover);
+  border: 1px solid var(--item-hover-border);
   cursor: pointer;
 }
 .hide,
@@ -134,13 +161,13 @@ table#files tr:hover {
   padding: .25em .5em;
   margin-bottom: 0;
   outline: none;
-  border: 1px solid #ddd;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--search-bg);
 }
 
 .image-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(256px, 1fr));
+  gap: 1px;
 }
 .image-grid>* {
   overflow: hidden;
@@ -159,14 +186,22 @@ table#files tr:hover {
   aspect-ratio: 1 / 1;
   background-size: cover;
   background-position: center center;
-  border: 1px solid black;
+}
+.thumbnail:hover {
+  border: 1px solid white;
 }
 video {
   pointer-events: none;
 }
 .behind {
-  z-index: -1;
   position: absolute;
+}
+.thumbnail a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
 }
 .thumbnail .front {
   z-index: 1;
@@ -194,51 +229,6 @@ video {
 @media (prefers-color-scheme: dark) {
   html {
     scrollbar-color: hsl(0, 0%, 35%) hsl(0, 0%, 13%);
-  }
-  body {
-    background-color: #333;
-    color: #CCC;
-  }
-  input {
-    color: #CCC;
-  }
-  table#files tr:nth-child(odd) {
-    background-color: #444;
-  }
-  table#files tr {
-    position: relative;
-  }
-  table#files tr a {
-    color: #ACF;
-  }
-  table#files a::after {
-    content: "";
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    left: 0;
-  }
-  .sort-down,
-  .sort-up {
-    color: lightseagreen;
-  }
-  a {
-    color: #8AC;
-  }
-  a:visited {
-    color: #ACF;
-  }
-  a:hover {
-    background-color: #556;
-  }
-  table#files tr:focus,
-  table#files tr:hover {
-    background-color: #556;
-    border: 1px solid #333;
-  }
-  #search {
-    border: 1px solid #ddd;
-    background-color: rgba(0, 0, 0, 0.9);
   }
 }
     </style>
@@ -461,30 +451,31 @@ video {
           return createElem('div', {
             className: 'thumbnail'
           }, [
+            createElem('a', {
+              className: 'behind thumbnail icon-video',
+              textContent: name,
+              href,
+            }),
             createElem('video', {
               className: 'thumbnail',
               src: href,
-              title: name,
+              alt: name,
               loop: true,
               currentTime: 5,
             }),
             createElem('a', {
-              className: 'behind',
-              textContent: name,
-              href,
-            }),
-            createElem('a', {
               className: 'front',
               href,
+              title: name,
             }),
           ]);
         }
 
-        const makeAudio = makeImage;
+        const makeAudio = makeIcon('icon-audio');
         const makeVideoLink = makeIcon('icon-video');
         const makeAudioLink = makeIcon('icon-audio');
         const makeFolderLink = makeIcon('icon-folder');
-        const makeExeLink = makeImage;
+        const makeExeLink = makeLink;
 
         const extFNs = {
           jpg: makeImage,
@@ -499,6 +490,7 @@ video {
           mkv: makeVideo,
           wmv: makeVideoLink,
           mp3: makeAudio,
+          m4a: makeAudio,
           ogg: makeAudioLink,
           wav: makeAudioLink,
           flac: makeAudioLink,
