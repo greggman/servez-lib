@@ -207,6 +207,10 @@ table#files tr:hover {
 video {
   pointer-events: none;
 }
+.pixelated {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
 .behind {
   position: absolute;
 }
@@ -450,15 +454,29 @@ video {
         }
 
         function makeImage({name, href, date, size}) {
-          return createElem('a', {
-            className: 'thumbnail',
-            href,
-            title: name,
-            style: {
-              backgroundImage: `url(${href})`,
-            },
+          return createElem('div', {
+            className: 'thumbnail'
           }, [
-            createElem('span', { style: { display: 'none', textContent: name }}),
+            createElem('a', {
+              className: 'behind thumbnail',
+              textContent: name,
+              href,
+            }),
+            createElem('img', {
+              className: 'thumbnail',
+              src: href,
+              alt: name,
+              onLoad: function() {
+                if (this.naturalWidth < 256 && this.naturalHeight < 256) {
+                  this.classList.add('pixelated');
+                }
+              },
+            }),
+            createElem('a', {
+              className: 'front',
+              href,
+              title: name,
+            }),
           ]);
         }
 
