@@ -29,7 +29,7 @@
     --item-link: #ACF;
     --link-hover-bg: #556;
     --sort: lightseagreen;
-    --search-bg: background-color: rgba(0, 0, 0, 0.9);
+    --search-bg: rgba(0, 0, 0, 0.9);
   }
 }
 html {
@@ -152,8 +152,8 @@ table#files tr:hover {
   display: flex;
   flex-direction: row-reverse;
   position: fixed;
-  top: 1em;
-  right: 1em;
+  top: 0.5em;
+  right: 0.5em;
   z-index: 1000;
 }
 #search {
@@ -186,6 +186,7 @@ table#files tr:hover {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
+  text-align: center;
   background-size: cover;
   background-position: center center;
   background-color: var(--thumbnail-bg);
@@ -216,7 +217,8 @@ video {
 
 @media (max-width: 768px) {
   .image-grid {
-    grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+    /* 119 makes 3 across on iPhone SE */
+    grid-template-columns: repeat(auto-fit, minmax(119px, 2fr));
   }
 }
 
@@ -474,6 +476,10 @@ video {
           ]);
         }
 
+        function makeEmpty() {
+          return createElem('div', {className: 'empty'});
+        }
+
         const makeAudio = makeIcon('icon-audio');
         const makeVideoLink = makeIcon('icon-video');
         const makeAudioLink = makeIcon('icon-audio');
@@ -486,11 +492,13 @@ video {
           png: makeImage,
           svg: makeImage,
           gif: makeImage,
+          webp: makeImage,
           mp4: makeVideo,
           m4v: makeVideo,
+          webm: makeVideo,
+          mkv: makeVideo,
           mov: makeVideoLink,
           avi: makeVideoLink,
-          mkv: makeVideo,
           wmv: makeVideoLink,
           mp3: makeAudio,
           m4a: makeAudio,
@@ -508,6 +516,12 @@ video {
             : extFNs[ext.toLowerCase()] || makeLink;
           imageGrid.appendChild(fn(e));
         });
+
+        // these are needed to make the images not
+        // spread when there are too few.
+        for (let i = 0; i < 10; ++i) {
+          imageGrid.appendChild(makeEmpty())
+        }
 
         search();
       }
