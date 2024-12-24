@@ -1,6 +1,6 @@
 {
   "name": "servez-lib",
-  "version": "2.9.7",
+  "version": "2.10.0",
   "description": "a simple server",
   "main": "lib/servez.js",
   "type": "commonjs",
