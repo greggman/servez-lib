@@ -250,4 +250,195 @@ describe('servez-lib', () => {
     assert.strictEqual(res.headers.get('fruit'), 'banana');
   });
 
+  describe('webdav', () => {
+
+    async function webdavFetch(baseUrl, path, method, extraHeaders = {}) {
+      return fetch(`${baseUrl}${path}`, {
+        method,
+        headers: { 'Depth': '0', ...extraHeaders },
+      });
+    }
+
+    async function propfind(baseUrl, path, depth = '1') {
+      return fetch(`${baseUrl}${path}`, {
+        method: 'PROPFIND',
+        headers: { 'Depth': depth },
+      });
+    }
+
+    function parseXml(text) {
+      // Minimal XML element text extractor for testing
+      return {
+        includes: (str) => text.includes(str),
+        text,
+      };
+    }
+
+    it('OPTIONS returns DAV headers', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const res = await fetch(`${baseUrl}/`, { method: 'OPTIONS' });
+      assert.strictEqual(res.status, 200);
+      assert.strictEqual(res.headers.get('dav'), '1, 2');
+      assert.ok(res.headers.get('allow').includes('PROPFIND'));
+      assert.strictEqual(res.headers.get('ms-author-via'), 'DAV');
+    });
+
+    it('PROPFIND on root returns 207 with XML', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const res = await propfind(baseUrl, '/');
+      assert.strictEqual(res.status, 207);
+      assert.ok(res.headers.get('content-type').includes('xml'));
+      const xml = parseXml(await res.text());
+      assert.ok(xml.includes('multistatus'));
+      assert.ok(xml.includes('collection'));
+    });
+
+    it('PROPFIND on root Depth:1 lists files', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const res = await propfind(baseUrl, '/', '1');
+      assert.strictEqual(res.status, 207);
+      const xml = parseXml(await res.text());
+      assert.ok(xml.includes('file.txt'));
+      assert.ok(xml.includes('folder'));
+    });
+
+    it('PROPFIND on file returns 207 with file info', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const res = await propfind(baseUrl, '/file.txt', '0');
+      assert.strictEqual(res.status, 207);
+      const xml = parseXml(await res.text());
+      assert.ok(xml.includes('file.txt'));
+      assert.ok(xml.includes('getcontentlength'));
+      assert.ok(xml.includes('getcontenttype'));
+      assert.ok(xml.includes('text/plain'));
+    });
+
+    it('PROPFIND reports correct file size', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const expectedSize = fs.statSync(path.join(root, 'file.txt')).size;
+      const res = await propfind(baseUrl, '/file.txt', '0');
+      const xml = parseXml(await res.text());
+      assert.ok(xml.includes(`>${expectedSize}<`));
+    });
+
+    it('PROPFIND reports correct MIME types for various extensions', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+
+      const cases = [
+        ['/image.jpg',  'image/jpeg'],
+        ['/image.png',  'image/png'],
+        ['/image.svg',  'image/svg+xml'],
+        ['/foo.html',   'text/html'],
+      ];
+
+      for (const [filePath, expectedType] of cases) {
+        const res = await propfind(baseUrl, filePath, '0');
+        assert.strictEqual(res.status, 207, `${filePath} should return 207`);
+        const xml = parseXml(await res.text());
+        assert.ok(xml.includes(expectedType), `${filePath} should have MIME type ${expectedType}`);
+      }
+    });
+
+    it('PROPFIND on subdirectory lists contents', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const res = await propfind(baseUrl, '/folder/', '1');
+      assert.strictEqual(res.status, 207);
+      const xml = parseXml(await res.text());
+      assert.ok(xml.includes('collection'));
+      assert.ok(xml.includes('index.html'));
+    });
+
+    it('PROPFIND on missing path returns 404', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const res = await propfind(baseUrl, '/does-not-exist', '0');
+      assert.strictEqual(res.status, 404);
+    });
+
+    it('PROPFIND response includes required DAV properties', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const res = await propfind(baseUrl, '/file.txt', '0');
+      const xml = parseXml(await res.text());
+      assert.ok(xml.includes('displayname'));
+      assert.ok(xml.includes('getlastmodified'));
+      assert.ok(xml.includes('creationdate'));
+      assert.ok(xml.includes('resourcetype'));
+      assert.ok(xml.includes('lockdiscovery'));
+      assert.ok(xml.includes('supportedlock'));
+    });
+
+    it('PROPFIND hrefs are absolute URIs', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const res = await propfind(baseUrl, '/file.txt', '0');
+      const xml = parseXml(await res.text());
+      assert.ok(xml.includes('http://'));
+    });
+
+    it('LOCK returns 200 with lock token', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const res = await webdavFetch(baseUrl, '/', 'LOCK');
+      assert.strictEqual(res.status, 200);
+      assert.ok(res.headers.get('lock-token'));
+      assert.ok(res.headers.get('lock-token').includes('urn:uuid:'));
+      const xml = parseXml(await res.text());
+      assert.ok(xml.includes('lockdiscovery'));
+      assert.ok(xml.includes('activelock'));
+    });
+
+    it('UNLOCK returns 204', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const res = await webdavFetch(baseUrl, '/', 'UNLOCK', {
+        'Lock-Token': '<urn:uuid:fake-token>',
+      });
+      assert.strictEqual(res.status, 204);
+    });
+
+    it('PUT returns 405', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const res = await fetch(`${baseUrl}/file.txt`, { method: 'PUT', body: 'data' });
+      assert.strictEqual(res.status, 405);
+    });
+
+    it('DELETE returns 405', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const res = await fetch(`${baseUrl}/file.txt`, { method: 'DELETE' });
+      assert.strictEqual(res.status, 405);
+    });
+
+    it('MKCOL returns 405', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const res = await fetch(`${baseUrl}/newdir`, { method: 'MKCOL' });
+      assert.strictEqual(res.status, 405);
+    });
+
+    it('HEAD on directory returns 200', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const res = await fetch(`${baseUrl}/folder/`, { method: 'HEAD' });
+      assert.strictEqual(res.status, 200);
+    });
+
+    it('HEAD on file returns 200', async() => {
+      const {servez, baseUrl} = await makeServer();
+      server = servez;
+      const res = await fetch(`${baseUrl}/file.txt`, { method: 'HEAD' });
+      assert.strictEqual(res.status, 200);
+    });
+
+  });
+
 });
